@@ -79,3 +79,4 @@ crashlytics-build.properties
 # Project Files
 
 docs
+/app/src/main/java/chipset/pone/resources/Keys.java
