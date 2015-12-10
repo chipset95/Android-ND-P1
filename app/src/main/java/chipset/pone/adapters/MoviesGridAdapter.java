@@ -6,10 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -62,19 +60,8 @@ public class MoviesGridAdapter extends BaseAdapter {
         Result result = getItem(position);
 
         viewHolder.getNameTextView().setText(result.getTitle());
-        Picasso.with(mContext).load(Constants.IMAGE_URL + result.getPosterPath())
-                .into(viewHolder.getPosterImageView(), new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        viewHolder.getPosterProgressBar().setVisibility(View.GONE);
-                        viewHolder.getPosterImageView().setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onError() {
-
-                    }
-                });
+        Picasso.with(mContext).load(Constants.URL_POSTER_IMAGE + result.getPosterPath())
+                .into(viewHolder.getPosterImageView());
 
         return convertView;
     }
@@ -82,16 +69,10 @@ public class MoviesGridAdapter extends BaseAdapter {
     private static class ViewHolder {
         private TextView nameTextView;
         private ImageView posterImageView;
-        private ProgressBar posterProgressBar;
 
         public ViewHolder(View view) {
             this.posterImageView = (ImageView) view.findViewById(R.id.poster_image_view);
             this.nameTextView = (TextView) view.findViewById(R.id.name_text_view);
-            this.posterProgressBar = (ProgressBar) view.findViewById(R.id.poster_progress_bar);
-        }
-
-        public ProgressBar getPosterProgressBar() {
-            return posterProgressBar;
         }
 
         public TextView getNameTextView() {

@@ -21,7 +21,7 @@ public class APIClient {
 
         if (movieDBInterface == null) {
             RestAdapter adapter = new RestAdapter.Builder()
-                    .setEndpoint(Constants.BASE_URL)
+                    .setEndpoint(Constants.URL_BASE)
                     .build();
             movieDBInterface = adapter.create(MovieDBInterface.class);
         }
@@ -29,7 +29,12 @@ public class APIClient {
     }
 
     public interface MovieDBInterface {
-        @GET("/movie/popular?api_key=" + Keys.TMDB_APIKEY)
+        @GET("/discover/movie?sort_by=popularity.desc&api_key=" + Keys.TMDB_APIKEY)
         void getPopularMovies(Callback<Movies> moviesCallback);
+
+        @GET("/discover/movie?sort_by=vote_average.desc&api_key=" + Keys.TMDB_APIKEY)
+        void getTopRatedMovies(Callback<Movies> moviesCallback);
+
+
     }
 }

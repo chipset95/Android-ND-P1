@@ -8,7 +8,10 @@ package chipset.pone.resources;
  */
 public class Constants {
 
-    public static final String BASE_URL = "https://api.themoviedb.org/3";
-    public static final String IMAGE_URL = "http://image.tmdb.org/t/p/original";
+    public static final String URL_BASE = "https://api.themoviedb.org/3";
+    public static final String URL_POSTER_IMAGE = "http://image.tmdb.org/t/p/w342";
+    public static final String URL_BACKDROP_IMAGE = "http://image.tmdb.org/t/p/w300";
+
+    public static final String PREF_SORT_ORDER = "sort_order";
 
 }
