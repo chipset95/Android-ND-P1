@@ -84,7 +84,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             public void failure(RetrofitError error) {
                 if (mProgressDialog.isShowing())
                     mProgressDialog.dismiss();
-                Snackbar.make(mToolbarLayout, error.getMessage(), Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(mToolbarLayout, "Connection Error", Snackbar.LENGTH_SHORT).show();
                 error.printStackTrace();
             }
         });

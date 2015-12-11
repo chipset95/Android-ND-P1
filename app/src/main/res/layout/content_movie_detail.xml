@@ -24,7 +24,7 @@
                 android:layout_width="0dp"
                 android:layout_height="240dp"
                 android:layout_gravity="center"
-                android:layout_margin="6dp"
+                android:layout_margin="@dimen/activity_horizontal_margin"
                 android:layout_weight="1"
                 android:contentDescription="@string/app_name" />
 
@@ -37,24 +37,26 @@
                 <TextView
                     android:id="@+id/rating_text_view"
                     android:layout_width="wrap_content"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_weight="1"
+                    android:layout_margin="@dimen/activity_horizontal_margin"
                     android:fontFamily="sans-serif-light"
                     android:gravity="center"
                     android:textColor="@color/primary_text"
-                    android:textSize="20sp" />
+                    android:textSize="28sp"
+                    android:textStyle="italic" />
 
                 <TextView
                     android:id="@+id/release_text_view"
                     android:layout_width="wrap_content"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_weight="1"
+                    android:layout_margin="@dimen/activity_horizontal_margin"
                     android:fontFamily="sans-serif-light"
                     android:gravity="center"
                     android:textColor="@color/primary_text"
-                    android:textSize="20sp" />
+                    android:textSize="24sp"
+                    android:textStyle="italic" />
             </LinearLayout>
         </LinearLayout>
 
@@ -65,6 +67,6 @@
             android:layout_margin="@dimen/text_margin"
             android:fontFamily="sans-serif-condensed"
             android:textColor="@color/primary_text"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>
