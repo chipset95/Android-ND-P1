@@ -1,11 +1,13 @@
 package chipset.pone.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 
@@ -33,16 +35,13 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesGridView = (GridView) findViewById(R.id.movies_grid_view);
         mMoviesProgressBar = (ProgressBar) findViewById(R.id.movies_progress_bar);
-
-        sort = Potato.potate().Preferences().getSharedPreferenceInteger(getApplicationContext(), Constants.PREF_SORT_ORDER);
-        if (sort == 0) {
-            fetchByPopularity();
-            sort = 0;
-        } else {
-            fetchByRating();
-            sort = 1;
-        }
-        Potato.potate().Preferences().putSharedPreference(getApplicationContext(), Constants.PREF_SORT_ORDER, sort);
+        mMoviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startActivity(new Intent(MainActivity.this, MovieDetailActivity.class).putExtra(Constants.EXTRA_MOVIE_ID, id));
+            }
+        });
+        initialize();
     }
 
     @Override
@@ -74,6 +73,18 @@ public class MainActivity extends AppCompatActivity {
         }
         Potato.potate().Preferences().putSharedPreference(getApplicationContext(), Constants.PREF_SORT_ORDER, sort);
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initialize() {
+        sort = Potato.potate().Preferences().getSharedPreferenceInteger(getApplicationContext(), Constants.PREF_SORT_ORDER);
+        if (sort == 0) {
+            fetchByPopularity();
+            sort = 0;
+        } else {
+            fetchByRating();
+            sort = 1;
+        }
+        Potato.potate().Preferences().putSharedPreference(getApplicationContext(), Constants.PREF_SORT_ORDER, sort);
     }
 
     private void fetchByPopularity() {

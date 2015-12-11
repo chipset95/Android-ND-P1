@@ -1,11 +1,13 @@
 package chipset.pone.network;
 
+import chipset.pone.models.Movie;
 import chipset.pone.models.Movies;
 import chipset.pone.resources.Constants;
 import chipset.pone.resources.Keys;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.http.GET;
+import retrofit.http.Path;
 
 /**
  * Developer: chipset
@@ -35,6 +37,7 @@ public class APIClient {
         @GET("/discover/movie?sort_by=vote_average.desc&api_key=" + Keys.TMDB_APIKEY)
         void getTopRatedMovies(Callback<Movies> moviesCallback);
 
-
+        @GET("/movie/{id}?api_key=" + Keys.TMDB_APIKEY)
+        void getMovieFromId(@Path("id") String id, Callback<Movie> movieCallback);
     }
 }

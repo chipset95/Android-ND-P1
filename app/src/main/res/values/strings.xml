@@ -2,4 +2,8 @@
     <string name="app_name">Popular Movies</string>
     <string name="menu_sort_popularity">Sort by Popularity</string>
     <string name="menu_sort_rating">Sort by Rating</string>
+    <string name="please_wait">Please Wait…</string>
+    <string name="rating_header">"Rating: "</string>
+    <string name="rating_footer">/10</string>
+    <string name="release_header">"Release Date: "</string>
 </resources>

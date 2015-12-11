@@ -13,5 +13,5 @@ public class Constants {
     public static final String URL_BACKDROP_IMAGE = "http://image.tmdb.org/t/p/w300";
 
     public static final String PREF_SORT_ORDER = "sort_order";
-
+    public static final String EXTRA_MOVIE_ID = "movie_id";
 }
