@@ -9,4 +9,9 @@
     <string name="movie_videos">Videos</string>
     <string name="movie_reviews">Reviews</string>
     <string name="close">Close</string>
+    <string name="share_movie">Share Movie</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="nothing_to_share">Nothing to share</string>
+    <string name="checkout_share">"Checkout the trailer for the movie "</string>
+    <string name="share_using">Share Using</string>
 </resources>

@@ -10,6 +10,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,6 +38,8 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static android.content.Intent.EXTRA_TEXT;
+
 public class MovieDetailActivity extends AppCompatActivity {
 
     private ImageView mBackdropImageView, mPosterImageView;
@@ -47,6 +51,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private MoviesVideoListAdapter mMoviesVideoListAdapter;
     private MoviesReviewListAdapter mMoviesReviewListAdapter;
     private String mID;
+    private String mVideoURL, mMovieTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +90,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             @Override
             public void success(Movie movie, Response response) {
                 mToolbarLayout.setTitle(movie.getOriginalTitle());
+                mMovieTitle = movie.getOriginalTitle();
 
                 Picasso.with(getApplicationContext())
                         .load(Constants.URL_BACKDROP_IMAGE + movie.getBackdropPath())
@@ -117,11 +123,14 @@ public class MovieDetailActivity extends AppCompatActivity {
                         mMoviesVideoListAdapter = new MoviesVideoListAdapter(MovieDetailActivity.this, movieVideos.getResults());
                         mVideosListView.setAdapter(mMoviesVideoListAdapter);
                         mMoviesVideoListAdapter.notifyDataSetChanged();
+                        if (movieVideos.getResults().size() > 0)
+                            mVideoURL = Constants.URL_YOUTUBE + movieVideos.getResults().get(0).getKey();
+                        else mVideoURL = "none";
                         mVideosListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 String url = Constants.URL_YOUTUBE + movieVideos.getResults().get(position).getKey();
-                                startActivity((new Intent("android.intent.action.VIEW")).setData(Uri.parse(url)));
+                                startActivity((new Intent(Intent.ACTION_VIEW)).setData(Uri.parse(url)));
                             }
                         });
 
@@ -150,7 +159,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                             public void failure(RetrofitError error) {
                                 if (mProgressDialog.isShowing())
                                     mProgressDialog.dismiss();
-                                Snackbar.make(mToolbarLayout, "Connection Error", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(mToolbarLayout, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
                                 error.printStackTrace();
 
                             }
@@ -162,7 +171,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                     public void failure(RetrofitError error) {
                         if (mProgressDialog.isShowing())
                             mProgressDialog.dismiss();
-                        Snackbar.make(mToolbarLayout, "Connection Error", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(mToolbarLayout, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
                         error.printStackTrace();
                     }
                 });
@@ -172,9 +181,31 @@ public class MovieDetailActivity extends AppCompatActivity {
             public void failure(RetrofitError error) {
                 if (mProgressDialog.isShowing())
                     mProgressDialog.dismiss();
-                Snackbar.make(mToolbarLayout, "Connection Error", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(mToolbarLayout, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
                 error.printStackTrace();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_movie_details, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_share_movie) {
+            if (!mVideoURL.equalsIgnoreCase("none")) {
+                String text = getString(R.string.checkout_share) + mMovieTitle + "\n\n" + mVideoURL;
+                startActivity(Intent.createChooser(new Intent(Intent.ACTION_SEND)
+                        .setType("text/plain")
+                        .putExtra(EXTRA_TEXT, text)
+                        , getString(R.string.share_using)));
+            } else {
+                Snackbar.make(mToolbarLayout, R.string.nothing_to_share, Snackbar.LENGTH_SHORT).show();
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
