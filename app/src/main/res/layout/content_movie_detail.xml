@@ -30,8 +30,11 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/activity_horizontal_margin"
                 android:layout_weight="1"
+                android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
@@ -76,11 +79,13 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/videos_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_margin="@dimen/activity_horizontal_margin"
+                android:drawableLeft="@drawable/ic_videos"
+                android:drawablePadding="@dimen/activity_horizontal_margin"
+                android:drawableStart="@drawable/ic_videos"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center"
                 android:text="@string/movie_videos"
@@ -92,6 +97,7 @@
                 android:id="@+id/videos_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="@dimen/activity_horizontal_margin"
                 app:hlv_dividerWidth="2dp" />
         </LinearLayout>
 
@@ -101,11 +107,13 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/reviews_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
                 android:layout_margin="@dimen/activity_horizontal_margin"
+                android:drawableLeft="@drawable/ic_review"
+                android:drawablePadding="@dimen/activity_horizontal_margin"
+                android:drawableStart="@drawable/ic_review"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center"
                 android:text="@string/movie_reviews"
@@ -113,11 +121,14 @@
                 android:textSize="24sp"
                 android:textStyle="italic" />
 
-            <ListView
+            <it.sephiroth.android.library.widget.HListView
                 android:id="@+id/reviews_list_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:dividerHeight="2dp" />
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:divider="@android:color/transparent"
+                android:padding="@dimen/activity_horizontal_margin"
+                app:hlv_dividerWidth="10dp" />
         </LinearLayout>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

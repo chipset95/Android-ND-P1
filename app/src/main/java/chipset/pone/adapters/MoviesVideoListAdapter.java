@@ -1,7 +1,6 @@
 package chipset.pone.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +33,6 @@ public class MoviesVideoListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        Log.d("size", mVideosResults.size() + "");
         return mVideosResults.size();
     }
 
@@ -56,7 +54,6 @@ public class MoviesVideoListAdapter extends BaseAdapter {
         }
         ViewHolder holder = (ViewHolder) convertView.getTag();
         String url = Constants.URL_YOUTUBE_IMAGE_HEADER + getItem(position).getKey() + Constants.URL_YOUTUBE_IMAGE_FOOTER;
-        Log.d("url",url);
         Picasso.with(mContext).load(url).into(holder.getVideoImageImageView());
         return convertView;
     }

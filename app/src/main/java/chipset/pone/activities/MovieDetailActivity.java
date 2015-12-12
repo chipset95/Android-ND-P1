@@ -1,10 +1,13 @@
 package chipset.pone.activities;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -19,12 +22,14 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import chipset.pone.R;
+import chipset.pone.adapters.MoviesReviewListAdapter;
 import chipset.pone.adapters.MoviesVideoListAdapter;
 import chipset.pone.models.Movie;
+import chipset.pone.models.MovieReviews;
+import chipset.pone.models.MovieReviewsResults;
 import chipset.pone.models.MovieVideos;
 import chipset.pone.network.APIClient;
 import chipset.pone.resources.Constants;
-import chipset.potato.Potato;
 import it.sephiroth.android.library.widget.AdapterView;
 import it.sephiroth.android.library.widget.HListView;
 import retrofit.Callback;
@@ -38,8 +43,9 @@ public class MovieDetailActivity extends AppCompatActivity {
     private CollapsingToolbarLayout mToolbarLayout;
     private ProgressDialog mProgressDialog;
     private FloatingActionButton mFavouriteFab;
-    private HListView mVideosListView;
+    private HListView mVideosListView, mReviewsListView;
     private MoviesVideoListAdapter mMoviesVideoListAdapter;
+    private MoviesReviewListAdapter mMoviesReviewListAdapter;
     private String mID;
 
     @Override
@@ -72,6 +78,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mReleaseTextView = (TextView) findViewById(R.id.release_text_view);
         mPosterImageView = (ImageView) findViewById(R.id.poster_image_view);
         mVideosListView = (HListView) findViewById(R.id.videos_list_view);
+        mReviewsListView = (HListView) findViewById(R.id.reviews_list_view);
         mID = String.valueOf(getIntent().getLongExtra(Constants.EXTRA_MOVIE_ID, 0));
 
         APIClient.getApi().getMovieFromId(mID, new Callback<Movie>() {
@@ -114,11 +121,41 @@ public class MovieDetailActivity extends AppCompatActivity {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 String url = Constants.URL_YOUTUBE + movieVideos.getResults().get(position).getKey();
-                                Potato.potate().Intents().browserIntent(getApplicationContext(), url);
+                                startActivity((new Intent("android.intent.action.VIEW")).setData(Uri.parse(url)));
                             }
                         });
-                        if (mProgressDialog.isShowing())
-                            mProgressDialog.dismiss();
+
+                        APIClient.getApi().getMovieReviewsFromId(mID, new Callback<MovieReviews>() {
+                            @Override
+                            public void success(final MovieReviews movieReviews, Response response) {
+                                mMoviesReviewListAdapter = new MoviesReviewListAdapter(MovieDetailActivity.this, movieReviews.getResults());
+                                mReviewsListView.setAdapter(mMoviesReviewListAdapter);
+                                mMoviesReviewListAdapter.notifyDataSetChanged();
+                                mReviewsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                        MovieReviewsResults result = movieReviews.getResults().get(position);
+                                        new AlertDialog.Builder(MovieDetailActivity.this)
+                                                .setTitle(result.getAuthor())
+                                                .setMessage(result.getContent())
+                                                .setPositiveButton(R.string.close, null)
+                                                .create().show();
+                                    }
+                                });
+                                if (mProgressDialog.isShowing())
+                                    mProgressDialog.dismiss();
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                if (mProgressDialog.isShowing())
+                                    mProgressDialog.dismiss();
+                                Snackbar.make(mToolbarLayout, "Connection Error", Snackbar.LENGTH_SHORT).show();
+                                error.printStackTrace();
+
+                            }
+                        });
+
                     }
 
                     @Override
