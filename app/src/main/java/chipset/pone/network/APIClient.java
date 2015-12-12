@@ -1,6 +1,8 @@
 package chipset.pone.network;
 
 import chipset.pone.models.Movie;
+import chipset.pone.models.MovieReviews;
+import chipset.pone.models.MovieVideos;
 import chipset.pone.models.Movies;
 import chipset.pone.resources.Constants;
 import chipset.pone.resources.Keys;
@@ -39,5 +41,11 @@ public class APIClient {
 
         @GET("/movie/{id}?api_key=" + Keys.TMDB_APIKEY)
         void getMovieFromId(@Path("id") String id, Callback<Movie> movieCallback);
+
+        @GET("/movie/{id}/videos?api_key=" + Keys.TMDB_APIKEY)
+        void getMovieVideosFromId(@Path("id") String id, Callback<MovieVideos> movieVideosCallback);
+
+        @GET("/movie/{id}/reviews?api_key=" + Keys.TMDB_APIKEY)
+        void getMovieReviewsFromId(@Path("id") String id, Callback<MovieReviews> movieReviewsCallback);
     }
 }

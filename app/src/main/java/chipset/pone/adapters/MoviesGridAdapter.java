@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import chipset.pone.R;
-import chipset.pone.models.Result;
+import chipset.pone.models.MoviesResults;
 import chipset.pone.resources.Constants;
 
 /**
@@ -24,24 +24,24 @@ import chipset.pone.resources.Constants;
  */
 public class MoviesGridAdapter extends BaseAdapter {
 
-    private List<Result> mResults;
+    private List<MoviesResults> mMoviesResults;
     private LayoutInflater mInflater;
     private Context mContext;
 
-    public MoviesGridAdapter(Context context, List<Result> results) {
+    public MoviesGridAdapter(Context context, List<MoviesResults> moviesResults) {
         mInflater = LayoutInflater.from(context);
         this.mContext = context;
-        this.mResults = results;
+        this.mMoviesResults = moviesResults;
     }
 
     @Override
     public int getCount() {
-        return mResults.size();
+        return mMoviesResults.size();
     }
 
     @Override
-    public Result getItem(int position) {
-        return mResults.get(position);
+    public MoviesResults getItem(int position) {
+        return mMoviesResults.get(position);
     }
 
     @Override
@@ -57,14 +57,15 @@ public class MoviesGridAdapter extends BaseAdapter {
         }
 
         final ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-        Result result = getItem(position);
+        MoviesResults moviesResult = getItem(position);
 
-        viewHolder.getNameTextView().setText(result.getTitle());
-        Picasso.with(mContext).load(Constants.URL_POSTER_IMAGE + result.getPosterPath())
+        viewHolder.getNameTextView().setText(moviesResult.getTitle());
+        Picasso.with(mContext).load(Constants.URL_POSTER_IMAGE + moviesResult.getPosterPath())
                 .into(viewHolder.getPosterImageView());
 
         return convertView;
     }
+
 
     private static class ViewHolder {
         private TextView nameTextView;

@@ -13,7 +13,7 @@ public class Movies {
     private Integer page;
     @SerializedName("results")
     @Expose
-    private List<Result> results = new ArrayList<>();
+    private List<MoviesResults> results = new ArrayList<>();
     @SerializedName("total_results")
     @Expose
     private Integer totalResults;
@@ -22,72 +22,56 @@ public class Movies {
     private Integer totalPages;
 
     /**
-     * 
-     * @return
-     *     The page
+     * @return The page
      */
     public Integer getPage() {
         return page;
     }
 
     /**
-     * 
-     * @param page
-     *     The page
+     * @param page The page
      */
     public void setPage(Integer page) {
         this.page = page;
     }
 
     /**
-     * 
-     * @return
-     *     The results
+     * @return The results
      */
-    public List<Result> getResults() {
+    public List<MoviesResults> getResults() {
         return results;
     }
 
     /**
-     * 
-     * @param results
-     *     The results
+     * @param results The results
      */
-    public void setResults(List<Result> results) {
+    public void setResults(List<MoviesResults> results) {
         this.results = results;
     }
 
     /**
-     * 
-     * @return
-     *     The totalResults
+     * @return The totalResults
      */
     public Integer getTotalResults() {
         return totalResults;
     }
 
     /**
-     * 
-     * @param totalResults
-     *     The total_results
+     * @param totalResults The total_results
      */
     public void setTotalResults(Integer totalResults) {
         this.totalResults = totalResults;
     }
 
     /**
-     * 
-     * @return
-     *     The totalPages
+     * @return The totalPages
      */
     public Integer getTotalPages() {
         return totalPages;
     }
 
     /**
-     * 
-     * @param totalPages
-     *     The total_pages
+     * @param totalPages The total_pages
      */
     public void setTotalPages(Integer totalPages) {
         this.totalPages = totalPages;

@@ -58,6 +58,7 @@
                     android:textSize="24sp"
                     android:textStyle="italic" />
             </LinearLayout>
+
         </LinearLayout>
 
         <TextView
@@ -68,5 +69,55 @@
             android:fontFamily="sans-serif-condensed"
             android:textColor="@color/primary_text"
             android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/videos_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:text="@string/movie_videos"
+                android:textColor="@color/primary_text"
+                android:textSize="24sp"
+                android:textStyle="italic" />
+
+            <it.sephiroth.android.library.widget.HListView
+                android:id="@+id/videos_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hlv_dividerWidth="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/reviews_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:text="@string/movie_reviews"
+                android:textColor="@color/primary_text"
+                android:textSize="24sp"
+                android:textStyle="italic" />
+
+            <ListView
+                android:id="@+id/reviews_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:dividerHeight="2dp" />
+        </LinearLayout>
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

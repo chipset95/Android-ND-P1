@@ -32,4 +32,5 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.chipset95:Potato-Library:0.1.4'
+    compile 'it.sephiroth.android.library.horizontallistview:hlistview:1.2.2'
 }
