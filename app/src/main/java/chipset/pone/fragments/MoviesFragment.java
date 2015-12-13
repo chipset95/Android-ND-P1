@@ -75,7 +75,15 @@ public class MoviesFragment extends Fragment {
                 }
             }
         });
-        initialize();
+        sort = Potato.potate().Preferences().getSharedPreferenceInteger(getContext(), Constants.PREF_SORT_ORDER);
+        if (sort == 0) {
+            fetchByPopularity();
+        } else if (sort == 1) {
+            fetchByRating();
+        } else if (sort == 2) {
+            fetchFromFavourites();
+        }
+        Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
     }
 
     @Override
@@ -104,24 +112,13 @@ public class MoviesFragment extends Fragment {
         } else if (item.getItemId() == R.id.action_sort_rating && sort != 1) {
             fetchByRating();
             sort = 1;
-        } else if (item.getItemId() == R.id.action_favourites) {
+        } else if (item.getItemId() == R.id.action_favourites && sort != 2) {
             fetchFromFavourites();
+            sort = 2;
             Toast.makeText(getContext(), "Coming Soon", Toast.LENGTH_SHORT).show();
         }
         Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
         return super.onOptionsItemSelected(item);
-    }
-
-    private void initialize() {
-        sort = Potato.potate().Preferences().getSharedPreferenceInteger(getContext(), Constants.PREF_SORT_ORDER);
-        if (sort == 0) {
-            fetchByPopularity();
-            sort = 0;
-        } else {
-            fetchByRating();
-            sort = 1;
-        }
-        Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
     }
 
     private void fetchByPopularity() {
@@ -170,16 +167,18 @@ public class MoviesFragment extends Fragment {
 
     private void fetchFromFavourites() {
         Cursor cursor = getActivity().getContentResolver().query(MoviesContract.BASE_CONTENT_URI, null, null, null, null);
-        if (cursor != null) {
+        if (cursor != null && cursor.getCount() > 0) {
             mMoviesGridView.setVisibility(View.GONE);
             mMoviesProgressBar.setVisibility(View.VISIBLE);
             List<MoviesResults> results = new ArrayList<>();
+            cursor.moveToFirst();
             do {
                 MoviesResults moviesResults = new MoviesResults();
-                moviesResults.setOriginalTitle(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_TITLE)));
-                moviesResults.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_OVERVIEW)));
-                moviesResults.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE)));
-                moviesResults.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RATING)));
+                moviesResults.setId(Integer.valueOf(cursor.getString(1)));
+                moviesResults.setOriginalTitle(cursor.getString(2));
+                moviesResults.setOverview(cursor.getString(3));
+                moviesResults.setReleaseDate(cursor.getString(4));
+                moviesResults.setVoteAverage(Double.valueOf(cursor.getString(5)));
                 results.add(moviesResults);
             } while (cursor.moveToNext());
             mMoviesGridAdapter = new MoviesGridAdapter(getContext(), results);
@@ -190,6 +189,7 @@ public class MoviesFragment extends Fragment {
             cursor.close();
         } else {
             Snackbar.make(mView, R.string.favourites_empty, Snackbar.LENGTH_SHORT).show();
+            fetchByPopularity();
         }
     }
 }

@@ -19,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+
         getSupportFragmentManager().beginTransaction().replace(R.id.movies_frame, new MoviesFragment()).commit();
 
         if (getResources().getBoolean(R.bool.is_tablet))

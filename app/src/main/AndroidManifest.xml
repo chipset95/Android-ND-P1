@@ -29,7 +29,8 @@
         <provider
             android:name=".provider.MoviesProvider"
             android:authorities="chipset.pone.movies.provider"
-            android:exported="false" />
+            android:exported="false"
+            android:syncable="true" />
     </application>
 
 </manifest>

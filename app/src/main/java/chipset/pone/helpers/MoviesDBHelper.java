@@ -3,6 +3,7 @@ package chipset.pone.helpers;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import chipset.pone.contracts.MoviesContract;
 
@@ -20,6 +21,7 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
 
     public MoviesDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        Log.d("DB HELPER", "Constructor");
     }
 
 
@@ -27,6 +29,7 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String SQL_CREATE_TABLE = "CREATE TABLE " + MoviesContract.MoviesEntry.TABLE_NAME + " (" +
                 MoviesContract.MoviesEntry._ID + " INTEGER PRIMARY KEY, " +
+                MoviesContract.MoviesEntry.COLUMN_ID + " TEXT NOT NULL," +
                 MoviesContract.MoviesEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MoviesContract.MoviesEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, " +
@@ -34,6 +37,7 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
                 MoviesContract.MoviesEntry.COLUMN_POSTER + " BLOB," +
                 MoviesContract.MoviesEntry.COLUMN_BACKDROP + " BLOB" + " );";
         db.execSQL(SQL_CREATE_TABLE);
+        Log.d("DB " + MoviesContract.MoviesEntry.TABLE_NAME, "Created");
     }
 
     @Override

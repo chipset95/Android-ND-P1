@@ -190,13 +190,15 @@ public class MovieDetailFragment extends Fragment {
                                     public void onClick(View view) {
                                         if (!inDB) {
                                             ContentValues values = new ContentValues();
+                                            values.put(MoviesContract.MoviesEntry.COLUMN_ID, mID);
                                             values.put(MoviesContract.MoviesEntry.COLUMN_TITLE, movie.getOriginalTitle());
                                             values.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, movie.getOverview());
                                             values.put(MoviesContract.MoviesEntry.COLUMN_RATING, String.valueOf(movie.getVoteAverage()));
                                             values.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
 
                                             mContentResolver.insert(MoviesContract.BASE_CONTENT_URI, values);
-                                            Snackbar.make(view, R.string.favourite_added, Snackbar.LENGTH_SHORT).show();
+                                            Snackbar.make(view, movie.getOriginalTitle() + R.string.favourite_added
+                                                    , Snackbar.LENGTH_SHORT).show();
                                         } else {
                                             new AlertDialog.Builder(getContext())
                                                     .setMessage(getString(R.string.favourite_remove_question_header)
@@ -206,7 +208,7 @@ public class MovieDetailFragment extends Fragment {
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) {
                                                             mContentResolver.delete(MoviesContract.BASE_CONTENT_URI,
-                                                                    MoviesContract.MoviesEntry._ID
+                                                                    MoviesContract.MoviesEntry.COLUMN_ID
                                                                             + getString(R.string.selection),
                                                                     new String[]{mID});
                                                             Snackbar.make(mView, movie.getOriginalTitle()
@@ -234,7 +236,6 @@ public class MovieDetailFragment extends Fragment {
 
                             }
                         });
-
                     }
 
                     @Override
@@ -280,17 +281,16 @@ public class MovieDetailFragment extends Fragment {
     }
 
     public void checkIifMovieIsInDatabase() {
-        Cursor c = mContentResolver.query(MoviesContract.BASE_CONTENT_URI, null,
-                MoviesContract.MoviesEntry._ID + getString(R.string.selection), new String[]{mID}, null);
-        if (c != null) {
-            inDB = c.getCount() == 0 && c.moveToFirst();
-
-            if (inDB) {
-                mFavouriteFab.setImageResource(R.drawable.ic_favourite_added);
-            } else {
-                mFavouriteFab.setImageResource(R.drawable.ic_favourite_add);
-            }
+        Cursor c = mContentResolver.query(MoviesContract.BASE_CONTENT_URI, new String[]{MoviesContract.MoviesEntry.COLUMN_ID},
+                MoviesContract.MoviesEntry.COLUMN_ID + getString(R.string.selection), new String[]{mID}, null);
+        if (c != null && c.getCount() > 0) {
+            inDB = c.moveToFirst();
             c.close();
+        }
+        if (inDB) {
+            mFavouriteFab.setImageResource(R.drawable.ic_favourite_added);
+        } else {
+            mFavouriteFab.setImageResource(R.drawable.ic_favourite_add);
         }
     }
 }
