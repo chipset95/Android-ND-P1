@@ -2,7 +2,6 @@ package chipset.pone.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 
 import chipset.pone.R;
 import chipset.pone.fragments.MovieDetailFragment;
@@ -18,6 +17,5 @@ public class MovieDetailActivity extends AppCompatActivity {
         String id = String.valueOf(getIntent().getLongExtra(Constants.EXTRA_MOVIE_ID, 550));
 
         getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_frame, MovieDetailFragment.newInstance(id)).commit();
-
     }
 }

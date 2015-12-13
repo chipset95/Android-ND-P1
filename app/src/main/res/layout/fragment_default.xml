@@ -11,5 +11,5 @@
         android:fontFamily="sans-serif-thin"
         android:text="@string/select_a_movie"
         android:textColor="@color/primary_text"
-        android:textSize="32sp" />
+        android:textSize="40sp" />
 </RelativeLayout>

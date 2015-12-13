@@ -10,7 +10,6 @@ import chipset.pone.fragments.MoviesFragment;
 
 public class MainActivity extends AppCompatActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,13 +18,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-
         getSupportFragmentManager().beginTransaction().replace(R.id.movies_frame, new MoviesFragment()).commit();
 
         if (getResources().getBoolean(R.bool.is_tablet))
             getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_frame, new DefaultFragment()).commit();
-
     }
 }
 

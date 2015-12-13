@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +111,6 @@ public class MoviesFragment extends Fragment {
             fetchByRating();
         } else if (item.getItemId() == R.id.action_favourites && sort != 2) {
             fetchFromFavourites();
-            Toast.makeText(getContext(), "Coming Soon", Toast.LENGTH_SHORT).show();
         }
         Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
         return super.onOptionsItemSelected(item);

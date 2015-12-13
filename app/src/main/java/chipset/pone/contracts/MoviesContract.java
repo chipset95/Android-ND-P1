@@ -17,8 +17,6 @@ public class MoviesContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + Constants.CONTENT_AUTHORITY);
 
     public static final class MoviesEntry implements BaseColumns {
-
-        public static final String CONTENT_DIR_TYPE = "vnd.android.cursor.dir/" + Constants.CONTENT_AUTHORITY;
         public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + Constants.CONTENT_AUTHORITY;
 
         public static final String TABLE_NAME = Constants.KEY_TABLE_MOVIES;

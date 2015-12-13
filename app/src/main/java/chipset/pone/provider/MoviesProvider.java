@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import chipset.pone.contracts.MoviesContract;
 import chipset.pone.helpers.MoviesDBHelper;
@@ -26,7 +25,6 @@ public class MoviesProvider extends ContentProvider {
         MoviesDBHelper mOpenHelper = new MoviesDBHelper(getContext());
         mWritableDatabase = mOpenHelper.getWritableDatabase();
         mReadableDatabase = mOpenHelper.getReadableDatabase();
-        Log.d("Create", "Provider");
         return true;
     }
 
@@ -46,7 +44,6 @@ public class MoviesProvider extends ContentProvider {
         long _id = mWritableDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, values);
         if (_id > 0) {
             returnUri = MoviesContract.MoviesEntry.buildUri(_id);
-            Log.d("Inserted At", returnUri.toString());
         } else
             throw new android.database.SQLException("Failed to insert row into " + uri);
         return returnUri;
@@ -58,7 +55,7 @@ public class MoviesProvider extends ContentProvider {
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return mWritableDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME, values, selection,
                 selectionArgs);
     }
