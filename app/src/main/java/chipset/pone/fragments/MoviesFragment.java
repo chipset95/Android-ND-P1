@@ -1,6 +1,7 @@
 package chipset.pone.fragments;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -14,11 +15,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import chipset.pone.R;
 import chipset.pone.activities.MovieDetailActivity;
 import chipset.pone.adapters.MoviesGridAdapter;
+import chipset.pone.contracts.MoviesContract;
 import chipset.pone.models.Movies;
+import chipset.pone.models.MoviesResults;
 import chipset.pone.network.APIClient;
 import chipset.pone.resources.Constants;
 import chipset.potato.Potato;
@@ -97,6 +104,9 @@ public class MoviesFragment extends Fragment {
         } else if (item.getItemId() == R.id.action_sort_rating && sort != 1) {
             fetchByRating();
             sort = 1;
+        } else if (item.getItemId() == R.id.action_favourites) {
+            fetchFromFavourites();
+            Toast.makeText(getContext(), "Coming Soon", Toast.LENGTH_SHORT).show();
         }
         Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
         return super.onOptionsItemSelected(item);
@@ -156,5 +166,30 @@ public class MoviesFragment extends Fragment {
                 mMoviesProgressBar.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void fetchFromFavourites() {
+        Cursor cursor = getActivity().getContentResolver().query(MoviesContract.BASE_CONTENT_URI, null, null, null, null);
+        if (cursor != null) {
+            mMoviesGridView.setVisibility(View.GONE);
+            mMoviesProgressBar.setVisibility(View.VISIBLE);
+            List<MoviesResults> results = new ArrayList<>();
+            do {
+                MoviesResults moviesResults = new MoviesResults();
+                moviesResults.setOriginalTitle(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_TITLE)));
+                moviesResults.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_OVERVIEW)));
+                moviesResults.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE)));
+                moviesResults.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RATING)));
+                results.add(moviesResults);
+            } while (cursor.moveToNext());
+            mMoviesGridAdapter = new MoviesGridAdapter(getContext(), results);
+            mMoviesGridAdapter.notifyDataSetChanged();
+            mMoviesGridView.setAdapter(mMoviesGridAdapter);
+            mMoviesGridView.setVisibility(View.VISIBLE);
+            mMoviesProgressBar.setVisibility(View.GONE);
+            cursor.close();
+        } else {
+            Snackbar.make(mView, R.string.favourites_empty, Snackbar.LENGTH_SHORT).show();
+        }
     }
 }

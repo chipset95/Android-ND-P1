@@ -25,6 +25,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="chipset.pone.activities.MainActivity" />
         </activity>
+
+        <provider
+            android:name=".provider.MoviesProvider"
+            android:authorities="chipset.pone.movies.provider"
+            android:exported="false" />
     </application>
 
 </manifest>

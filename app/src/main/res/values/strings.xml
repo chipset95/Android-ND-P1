@@ -16,4 +16,11 @@
     <string name="share_using">Share Using</string>
     <string name="movie_overview">Overview</string>
     <string name="select_a_movie">Select A Movie</string>
+    <string name="favourite_added">Movie added to favourites</string>
+    <string name="favourite_remove_question_header">"Remove "</string>
+    <string name="favourite_remove_question_footer">" from favourites?"</string>
+    <string name="selection">=\?</string>
+    <string name="favourites_removed">" removed from favourites"</string>
+    <string name="show_favourites">Show Favourites</string>
+    <string name="favourites_empty">Nothing in favourites</string>
 </resources>

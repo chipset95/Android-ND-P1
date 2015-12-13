@@ -1,7 +1,11 @@
 package chipset.pone.fragments;
 
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -30,6 +34,7 @@ import java.util.Locale;
 import chipset.pone.R;
 import chipset.pone.adapters.MoviesReviewListAdapter;
 import chipset.pone.adapters.MoviesVideoListAdapter;
+import chipset.pone.contracts.MoviesContract;
 import chipset.pone.models.Movie;
 import chipset.pone.models.MovieReviews;
 import chipset.pone.models.MovieReviewsResults;
@@ -64,13 +69,16 @@ public class MovieDetailFragment extends Fragment {
     private String mVideoURL, mMovieTitle;
     private View mView;
     private AppCompatActivity mActivity;
+    private ContentResolver mContentResolver;
+    private boolean inDB = false;
 
     public static MovieDetailFragment newInstance(String id) {
-        return new MovieDetailFragment(id);
+        return new MovieDetailFragment().setID(id);
     }
 
-    public MovieDetailFragment(String mID) {
-        this.mID = mID;
+    public MovieDetailFragment setID(String id) {
+        this.mID = id;
+        return this;
     }
 
     @Override
@@ -92,18 +100,12 @@ public class MovieDetailFragment extends Fragment {
                 mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        mContentResolver = getActivity().getContentResolver();
+
         mProgressDialog = new ProgressDialog(getContext());
         mProgressDialog.setMessage(getString(R.string.please_wait));
         mProgressDialog.show();
 
-        mFavouriteFab = (FloatingActionButton) view.findViewById(R.id.fab);
-        mFavouriteFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         mToolbarLayout = (CollapsingToolbarLayout) view.findViewById(R.id.toolbar_layout);
         mBackdropImageView = (ImageView) view.findViewById(R.id.toolbar_background_image_view);
@@ -113,11 +115,13 @@ public class MovieDetailFragment extends Fragment {
         mPosterImageView = (ImageView) view.findViewById(R.id.poster_image_view);
         mVideosListView = (HListView) view.findViewById(R.id.videos_list_view);
         mReviewsListView = (HListView) view.findViewById(R.id.reviews_list_view);
-//        mID = String.valueOf(getIntent().getLongExtra(Constants.EXTRA_MOVIE_ID, 0));
+        mFavouriteFab = (FloatingActionButton) view.findViewById(R.id.favourite_fab);
+
+        checkIifMovieIsInDatabase();
 
         APIClient.getApi().getMovieFromId(mID, new Callback<Movie>() {
             @Override
-            public void success(Movie movie, Response response) {
+            public void success(final Movie movie, Response response) {
                 mToolbarLayout.setTitle(movie.getOriginalTitle());
                 mMovieTitle = movie.getOriginalTitle();
 
@@ -180,6 +184,43 @@ public class MovieDetailFragment extends Fragment {
                                                 .create().show();
                                     }
                                 });
+
+                                mFavouriteFab.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if (!inDB) {
+                                            ContentValues values = new ContentValues();
+                                            values.put(MoviesContract.MoviesEntry.COLUMN_TITLE, movie.getOriginalTitle());
+                                            values.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, movie.getOverview());
+                                            values.put(MoviesContract.MoviesEntry.COLUMN_RATING, String.valueOf(movie.getVoteAverage()));
+                                            values.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
+
+                                            mContentResolver.insert(MoviesContract.BASE_CONTENT_URI, values);
+                                            Snackbar.make(view, R.string.favourite_added, Snackbar.LENGTH_SHORT).show();
+                                        } else {
+                                            new AlertDialog.Builder(getContext())
+                                                    .setMessage(getString(R.string.favourite_remove_question_header)
+                                                            + movie.getOriginalTitle()
+                                                            + getString(R.string.favourite_remove_question_footer))
+                                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            mContentResolver.delete(MoviesContract.BASE_CONTENT_URI,
+                                                                    MoviesContract.MoviesEntry._ID
+                                                                            + getString(R.string.selection),
+                                                                    new String[]{mID});
+                                                            Snackbar.make(mView, movie.getOriginalTitle()
+                                                                            + getString(R.string.favourites_removed),
+                                                                    Snackbar.LENGTH_SHORT).show();
+                                                        }
+                                                    })
+                                                    .setNegativeButton(android.R.string.no, null)
+                                                    .create().show();
+                                        }
+                                        checkIifMovieIsInDatabase();
+                                    }
+
+                                });
                                 if (mProgressDialog.isShowing())
                                     mProgressDialog.dismiss();
                             }
@@ -236,6 +277,21 @@ public class MovieDetailFragment extends Fragment {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void checkIifMovieIsInDatabase() {
+        Cursor c = mContentResolver.query(MoviesContract.BASE_CONTENT_URI, null,
+                MoviesContract.MoviesEntry._ID + getString(R.string.selection), new String[]{mID}, null);
+        if (c != null) {
+            inDB = c.getCount() == 0 && c.moveToFirst();
+
+            if (inDB) {
+                mFavouriteFab.setImageResource(R.drawable.ic_favourite_added);
+            } else {
+                mFavouriteFab.setImageResource(R.drawable.ic_favourite_add);
+            }
+            c.close();
+        }
     }
 }
 

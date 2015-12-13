@@ -17,4 +17,12 @@ public class Constants {
 
     public static final String PREF_SORT_ORDER = "sort_order";
     public static final String EXTRA_MOVIE_ID = "movie_id";
+
+    public static final String KEY_CLASS_MOVIES = "movies";
+    public static final String KEY_TITLE = "title";
+    public static final String KEY_OVERVIEW = "overview";
+    public static final String KEY_RELEASE_DATE = "release_date";
+    public static final String KEY_RATING = "rating";
+    public static final String KEY_POSTER = "poster";
+    public static final String KEY_BACKDROP = "backdrop";
 }
