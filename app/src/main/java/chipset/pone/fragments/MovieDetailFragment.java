@@ -197,8 +197,9 @@ public class MovieDetailFragment extends Fragment {
                                             values.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
 
                                             mContentResolver.insert(MoviesContract.BASE_CONTENT_URI, values);
-                                            Snackbar.make(view, movie.getOriginalTitle() + R.string.favourite_added
+                                            Snackbar.make(view, movie.getOriginalTitle() + getString(R.string.favourite_added)
                                                     , Snackbar.LENGTH_SHORT).show();
+                                            checkIifMovieIsInDatabase();
                                         } else {
                                             new AlertDialog.Builder(getContext())
                                                     .setMessage(getString(R.string.favourite_remove_question_header)
@@ -214,12 +215,12 @@ public class MovieDetailFragment extends Fragment {
                                                             Snackbar.make(mView, movie.getOriginalTitle()
                                                                             + getString(R.string.favourites_removed),
                                                                     Snackbar.LENGTH_SHORT).show();
+                                                            checkIifMovieIsInDatabase();
                                                         }
                                                     })
                                                     .setNegativeButton(android.R.string.no, null)
                                                     .create().show();
                                         }
-                                        checkIifMovieIsInDatabase();
                                     }
 
                                 });
@@ -286,10 +287,9 @@ public class MovieDetailFragment extends Fragment {
         if (c != null && c.getCount() > 0) {
             inDB = c.moveToFirst();
             c.close();
-        }
-        if (inDB) {
             mFavouriteFab.setImageResource(R.drawable.ic_favourite_added);
         } else {
+            inDB = false;
             mFavouriteFab.setImageResource(R.drawable.ic_favourite_add);
         }
     }

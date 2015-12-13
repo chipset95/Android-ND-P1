@@ -3,24 +3,24 @@
     <string name="menu_sort_popularity">Sort by Popularity</string>
     <string name="menu_sort_rating">Sort by Rating</string>
     <string name="please_wait">Please Wait…</string>
-    <string name="rating_header"><b>Rating\n</b></string>
+    <string name="rating_header">"<b>Rating\n</b>"</string>
     <string name="rating_footer">/10</string>
-    <string name="release_header"><b>Release Date</b>\n</string>
+    <string name="release_header">"<b>Release Date\n</b>"</string>
     <string name="movie_videos">Videos</string>
     <string name="movie_reviews">Reviews</string>
     <string name="close">Close</string>
     <string name="share_movie">Share Movie</string>
     <string name="connection_error">Connection Error</string>
     <string name="nothing_to_share">Nothing to share</string>
-    <string name="checkout_share">Checkout the trailer for the movie </string>
+    <string name="checkout_share">"Checkout the trailer for the movie "</string>
     <string name="share_using">Share Using</string>
     <string name="movie_overview">Overview</string>
     <string name="select_a_movie">Select A Movie</string>
-    <string name="favourite_added"> added to favourites</string>
-    <string name="favourite_remove_question_header">Remove </string>
-    <string name="favourite_remove_question_footer"> from favourites\?</string>
+    <string name="favourite_added">" added to favourites"</string>
+    <string name="favourite_remove_question_header">"Remove "</string>
+    <string name="favourite_remove_question_footer">" from favourites?"</string>
     <string name="selection">=\?</string>
-    <string name="favourites_removed"> removed from favourites</string>
+    <string name="favourites_removed">" removed from favourites"</string>
     <string name="show_favourites">Show Favourites</string>
     <string name="favourites_empty">Nothing in favourites</string>
 </resources>

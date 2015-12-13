@@ -108,13 +108,10 @@ public class MoviesFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_sort_popularity && sort != 0) {
             fetchByPopularity();
-            sort = 0;
         } else if (item.getItemId() == R.id.action_sort_rating && sort != 1) {
             fetchByRating();
-            sort = 1;
         } else if (item.getItemId() == R.id.action_favourites && sort != 2) {
             fetchFromFavourites();
-            sort = 2;
             Toast.makeText(getContext(), "Coming Soon", Toast.LENGTH_SHORT).show();
         }
         Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
@@ -122,6 +119,7 @@ public class MoviesFragment extends Fragment {
     }
 
     private void fetchByPopularity() {
+        sort = 0;
         mMoviesGridView.setVisibility(View.GONE);
         mMoviesProgressBar.setVisibility(View.VISIBLE);
         APIClient.getApi().getPopularMovies(new Callback<Movies>() {
@@ -144,6 +142,7 @@ public class MoviesFragment extends Fragment {
     }
 
     private void fetchByRating() {
+        sort = 1;
         mMoviesGridView.setVisibility(View.GONE);
         mMoviesProgressBar.setVisibility(View.VISIBLE);
         APIClient.getApi().getTopRatedMovies(new Callback<Movies>() {
@@ -166,6 +165,7 @@ public class MoviesFragment extends Fragment {
     }
 
     private void fetchFromFavourites() {
+        sort = 2;
         Cursor cursor = getActivity().getContentResolver().query(MoviesContract.BASE_CONTENT_URI, null, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
             mMoviesGridView.setVisibility(View.GONE);
