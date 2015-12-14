@@ -123,7 +123,7 @@ public class MoviesFragment extends Fragment {
         APIClient.getApi().getPopularMovies(new Callback<Movies>() {
             @Override
             public void success(Movies movies, Response response) {
-                mMoviesGridAdapter = new MoviesGridAdapter(getContext(), movies.getResults());
+                mMoviesGridAdapter = new MoviesGridAdapter(getContext(), movies.getResults(), local);
                 mMoviesGridAdapter.notifyDataSetChanged();
                 mMoviesGridView.setAdapter(mMoviesGridAdapter);
                 mMoviesGridView.setVisibility(View.VISIBLE);
@@ -147,7 +147,7 @@ public class MoviesFragment extends Fragment {
         APIClient.getApi().getTopRatedMovies(new Callback<Movies>() {
             @Override
             public void success(Movies movies, Response response) {
-                mMoviesGridAdapter = new MoviesGridAdapter(getContext(), movies.getResults());
+                mMoviesGridAdapter = new MoviesGridAdapter(getContext(), movies.getResults(), local);
                 mMoviesGridAdapter.notifyDataSetChanged();
                 mMoviesGridView.setAdapter(mMoviesGridAdapter);
                 mMoviesGridView.setVisibility(View.VISIBLE);
@@ -181,7 +181,7 @@ public class MoviesFragment extends Fragment {
                 moviesResults.setVoteAverage(Double.valueOf(cursor.getString(5)));
                 results.add(moviesResults);
             } while (cursor.moveToNext());
-            mMoviesGridAdapter = new MoviesGridAdapter(getContext(), results);
+            mMoviesGridAdapter = new MoviesGridAdapter(getContext(), results, local);
             mMoviesGridAdapter.notifyDataSetChanged();
             mMoviesGridView.setAdapter(mMoviesGridAdapter);
             mMoviesGridView.setVisibility(View.VISIBLE);

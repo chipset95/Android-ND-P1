@@ -75,7 +75,6 @@ public class MovieDetailFragment extends Fragment {
     private ContentResolver mContentResolver;
     private boolean inDB = false, local;
     private AppCompatActivity mActivity;
-    private byte[] mPosterBytes, mBackdropBytes;
 
     public static MovieDetailFragment newInstance(String id, boolean local) {
         return new MovieDetailFragment().setID(id).setLocal(local);
@@ -125,8 +124,6 @@ public class MovieDetailFragment extends Fragment {
         mVideosListView = (HListView) view.findViewById(R.id.videos_list_view);
         mReviewsListView = (HListView) view.findViewById(R.id.reviews_list_view);
         mFavouriteFab = (FloatingActionButton) view.findViewById(R.id.favourite_fab);
-        mPosterImageView.setDrawingCacheEnabled(true);
-        mBackdropImageView.setDrawingCacheEnabled(true);
 
         checkIifMovieIsInDatabase();
 
@@ -167,8 +164,7 @@ public class MovieDetailFragment extends Fragment {
                         .into(mPosterImageView);
 
                 Picasso.with(getContext()).load(readImageFromFile(mMovieTitle, Constants.KEY_BACKDROP))
-                        .placeholder(R.drawable.loading).error(R.drawable.no_image)
-                        .into(mBackdropImageView);
+                        .error(R.drawable.no_image).into(mBackdropImageView);
 
                 initFab();
             }
@@ -186,8 +182,7 @@ public class MovieDetailFragment extends Fragment {
 
                     Picasso.with(getContext())
                             .load(Constants.URL_BACKDROP_IMAGE + movie.getBackdropPath())
-                            .placeholder(R.drawable.loading).error(R.drawable.no_image)
-                            .into(mBackdropImageView);
+                            .error(R.drawable.no_image).into(mBackdropImageView);
 
                     mMovieOverviewTextView.setText(mOverview);
 
