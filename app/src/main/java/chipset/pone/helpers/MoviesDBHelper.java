@@ -31,9 +31,7 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
                 MoviesContract.MoviesEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
                 MoviesContract.MoviesEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL, " +
-                MoviesContract.MoviesEntry.COLUMN_RATING + " TEXT NOT NULL," +
-                MoviesContract.MoviesEntry.COLUMN_POSTER + " BLOB," +
-                MoviesContract.MoviesEntry.COLUMN_BACKDROP + " BLOB" + " );";
+                MoviesContract.MoviesEntry.COLUMN_RATING + " TEXT NOT NULL" + " );";
         db.execSQL(SQL_CREATE_TABLE);
     }
 

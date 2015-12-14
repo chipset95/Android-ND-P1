@@ -61,6 +61,7 @@ public class MoviesGridAdapter extends BaseAdapter {
 
         viewHolder.getNameTextView().setText(moviesResult.getTitle());
         Picasso.with(mContext).load(Constants.URL_POSTER_IMAGE + moviesResult.getPosterPath())
+                .placeholder(R.drawable.loading).error(R.drawable.no_image)
                 .into(viewHolder.getPosterImageView());
 
         return convertView;

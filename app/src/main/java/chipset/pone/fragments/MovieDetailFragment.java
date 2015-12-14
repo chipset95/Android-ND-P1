@@ -3,9 +3,11 @@ package chipset.pone.fragments;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -26,6 +28,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -70,6 +74,8 @@ public class MovieDetailFragment extends Fragment {
     private View mView;
     private ContentResolver mContentResolver;
     private boolean inDB = false, local;
+    private AppCompatActivity mActivity;
+    private byte[] mPosterBytes, mBackdropBytes;
 
     public static MovieDetailFragment newInstance(String id, boolean local) {
         return new MovieDetailFragment().setID(id).setLocal(local);
@@ -95,13 +101,12 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        AppCompatActivity mactivity = ((AppCompatActivity) getActivity());
+        mActivity = ((AppCompatActivity) getActivity());
         if (!getResources().getBoolean(R.bool.is_tablet)) {
             Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-            mactivity.setSupportActionBar(toolbar);
-            if (mactivity.getSupportActionBar() != null)
-                mactivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mActivity.setSupportActionBar(toolbar);
+            if (mActivity.getSupportActionBar() != null)
+                mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         mContentResolver = getActivity().getContentResolver();
@@ -120,13 +125,15 @@ public class MovieDetailFragment extends Fragment {
         mVideosListView = (HListView) view.findViewById(R.id.videos_list_view);
         mReviewsListView = (HListView) view.findViewById(R.id.reviews_list_view);
         mFavouriteFab = (FloatingActionButton) view.findViewById(R.id.favourite_fab);
+        mPosterImageView.setDrawingCacheEnabled(true);
+        mBackdropImageView.setDrawingCacheEnabled(true);
 
         checkIifMovieIsInDatabase();
 
         if (local) {
             mView.findViewById(R.id.video_card_view).setVisibility(View.GONE);
             mView.findViewById(R.id.review_card_view).setVisibility(View.GONE);
-            Cursor cursor = mactivity.getContentResolver().query(MoviesContract.BASE_CONTENT_URI,
+            Cursor cursor = mActivity.getContentResolver().query(MoviesContract.BASE_CONTENT_URI,
                     new String[]{MoviesContract.MoviesEntry.COLUMN_ID, MoviesContract.MoviesEntry.COLUMN_TITLE,
                             MoviesContract.MoviesEntry.COLUMN_OVERVIEW, MoviesContract.MoviesEntry.COLUMN_RATING,
                             MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE}, MoviesContract.MoviesEntry.COLUMN_ID
@@ -137,9 +144,8 @@ public class MovieDetailFragment extends Fragment {
                 mOverview = cursor.getString(2);
                 mRating = cursor.getString(3);
                 mRelease = cursor.getString(4);
+
                 mToolbarLayout.setTitle(mMovieTitle);
-                mBackdropImageView.setImageResource(R.mipmap.ic_launcher);
-                mPosterImageView.setImageResource(R.mipmap.ic_launcher);
                 mMovieOverviewTextView.setText(mOverview);
                 String rating = getString(R.string.rating_header)
                         + mRating + getString(R.string.rating_footer);
@@ -155,6 +161,15 @@ public class MovieDetailFragment extends Fragment {
                 String release = getString(R.string.release_header) + sdfTo.format(cal.getTime());
                 mReleaseTextView.setText(release);
                 cursor.close();
+
+                Picasso.with(getContext()).load(readImageFromFile(mMovieTitle, Constants.KEY_POSTER))
+                        .placeholder(R.drawable.loading).error(R.drawable.no_image)
+                        .into(mPosterImageView);
+
+                Picasso.with(getContext()).load(readImageFromFile(mMovieTitle, Constants.KEY_BACKDROP))
+                        .placeholder(R.drawable.loading).error(R.drawable.no_image)
+                        .into(mBackdropImageView);
+
                 initFab();
             }
             if (mProgressDialog.isShowing())
@@ -171,6 +186,7 @@ public class MovieDetailFragment extends Fragment {
 
                     Picasso.with(getContext())
                             .load(Constants.URL_BACKDROP_IMAGE + movie.getBackdropPath())
+                            .placeholder(R.drawable.loading).error(R.drawable.no_image)
                             .into(mBackdropImageView);
 
                     mMovieOverviewTextView.setText(mOverview);
@@ -192,6 +208,7 @@ public class MovieDetailFragment extends Fragment {
 
                     Picasso.with(getContext())
                             .load(Constants.URL_POSTER_IMAGE + movie.getPosterPath())
+                            .placeholder(R.drawable.loading).error(R.drawable.no_image)
                             .into(mPosterImageView);
 
                     initFab();
@@ -314,6 +331,9 @@ public class MovieDetailFragment extends Fragment {
                     values.put(MoviesContract.MoviesEntry.COLUMN_RATING, mRating);
                     values.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, mRelease);
 
+                    saveImageToFile(mPosterImageView, mMovieTitle, Constants.KEY_POSTER);
+                    saveImageToFile(mBackdropImageView, mMovieTitle, Constants.KEY_BACKDROP);
+
                     mContentResolver.insert(MoviesContract.BASE_CONTENT_URI, values);
                     Snackbar.make(view, mMovieTitle + getString(R.string.favourite_added)
                             , Snackbar.LENGTH_SHORT).show();
@@ -333,6 +353,8 @@ public class MovieDetailFragment extends Fragment {
                                     Snackbar.make(mView, mMovieTitle
                                                     + getString(R.string.favourites_removed),
                                             Snackbar.LENGTH_SHORT).show();
+                                    deleteImageFile(mMovieTitle, Constants.KEY_POSTER);
+                                    deleteImageFile(mMovieTitle, Constants.KEY_BACKDROP);
                                     checkIifMovieIsInDatabase();
                                 }
                             })
@@ -341,6 +363,40 @@ public class MovieDetailFragment extends Fragment {
                 }
             }
         });
+    }
+
+    private void saveImageToFile(ImageView imageView, String title, String type) {
+        imageView.setDrawingCacheEnabled(true);
+        Bitmap bitmap = imageView.getDrawingCache();
+        try {
+            FileOutputStream output = mActivity.openFileOutput(title + type, Context.MODE_PRIVATE);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output);
+            output.flush();
+            output.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private File readImageFromFile(String title, String type) {
+        File file = null;
+        try {
+            file = new File(mActivity.getFilesDir(), title + type);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
+    private boolean deleteImageFile(String title, String type) {
+        File file;
+        try {
+            file = new File(mActivity.getFilesDir(), title + type);
+            return file.delete();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
 

@@ -54,7 +54,8 @@ public class MoviesVideoListAdapter extends BaseAdapter {
         }
         ViewHolder holder = (ViewHolder) convertView.getTag();
         String url = Constants.URL_YOUTUBE_IMAGE_HEADER + getItem(position).getKey() + Constants.URL_YOUTUBE_IMAGE_FOOTER;
-        Picasso.with(mContext).load(url).into(holder.getVideoImageImageView());
+        Picasso.with(mContext).load(url).placeholder(R.drawable.loading).error(R.drawable.no_image)
+                .into(holder.getVideoImageImageView());
         return convertView;
     }
 
