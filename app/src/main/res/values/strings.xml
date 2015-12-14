@@ -23,4 +23,5 @@
     <string name="favourites_removed">" removed from favourites"</string>
     <string name="show_favourites">Show Favourites</string>
     <string name="favourites_empty">Nothing in favourites</string>
+    <string name="reload">Reload</string>
 </resources>

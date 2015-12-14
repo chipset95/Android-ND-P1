@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,12 +47,14 @@ public class MoviesFragment extends Fragment {
     private int sort;
     private View mView;
     private boolean isTablet, local;
+    private AppCompatActivity mActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mView = inflater.inflate(R.layout.fragment_movies, container, false);
         isTablet = getResources().getBoolean(R.bool.is_tablet);
+        mActivity = ((AppCompatActivity) getActivity());
         return mView;
     }
 
@@ -99,6 +102,8 @@ public class MoviesFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_main, menu);
+        if (sort == 2)
+            menu.findItem(R.id.action_reload).setVisible(false);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -110,6 +115,11 @@ public class MoviesFragment extends Fragment {
             fetchByRating();
         } else if (item.getItemId() == R.id.action_favourites && sort != 2) {
             fetchFromFavourites();
+        } else if (item.getItemId() == R.id.action_reload) {
+            if (sort == 0)
+                fetchByPopularity();
+            else if (sort == 2)
+                fetchByRating();
         }
         Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
         return super.onOptionsItemSelected(item);
@@ -118,6 +128,7 @@ public class MoviesFragment extends Fragment {
     private void fetchByPopularity() {
         sort = 0;
         local = false;
+        mActivity.invalidateOptionsMenu();
         mMoviesGridView.setVisibility(View.GONE);
         mMoviesProgressBar.setVisibility(View.VISIBLE);
         APIClient.getApi().getPopularMovies(new Callback<Movies>() {
@@ -142,6 +153,7 @@ public class MoviesFragment extends Fragment {
     private void fetchByRating() {
         sort = 1;
         local = false;
+        mActivity.invalidateOptionsMenu();
         mMoviesGridView.setVisibility(View.GONE);
         mMoviesProgressBar.setVisibility(View.VISIBLE);
         APIClient.getApi().getTopRatedMovies(new Callback<Movies>() {
@@ -166,6 +178,7 @@ public class MoviesFragment extends Fragment {
     private void fetchFromFavourites() {
         sort = 2;
         local = true;
+        mActivity.invalidateOptionsMenu();
         Cursor cursor = getActivity().getContentResolver().query(MoviesContract.BASE_CONTENT_URI, null, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
             mMoviesGridView.setVisibility(View.GONE);
