@@ -116,6 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
             card:cardCornerRadius="2dp"
+            android:id="@+id/video_card_view"
             card:cardElevation="5dp">
 
             <LinearLayout
@@ -153,6 +154,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/activity_horizontal_margin"
+            android:id="@+id/review_card_view"
             card:cardCornerRadius="2dp"
             card:cardElevation="5dp">
 

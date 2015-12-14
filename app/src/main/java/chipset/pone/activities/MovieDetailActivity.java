@@ -15,7 +15,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
 
         String id = String.valueOf(getIntent().getLongExtra(Constants.EXTRA_MOVIE_ID, 550));
+        boolean local = getIntent().getBooleanExtra(Constants.EXTRA_LOCAL, false);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_frame, MovieDetailFragment.newInstance(id)).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_frame, MovieDetailFragment.newInstance(id, local)).commit();
     }
 }

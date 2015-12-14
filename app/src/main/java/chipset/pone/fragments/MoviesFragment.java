@@ -3,7 +3,6 @@ package chipset.pone.fragments;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -46,9 +45,8 @@ public class MoviesFragment extends Fragment {
     private ProgressBar mMoviesProgressBar;
     private int sort;
     private View mView;
-    private boolean isTablet;
+    private boolean isTablet, local;
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
@@ -66,10 +64,11 @@ public class MoviesFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!isTablet)
-                    startActivity(new Intent(getContext(), MovieDetailActivity.class).putExtra(Constants.EXTRA_MOVIE_ID, id));
+                    startActivity(new Intent(getContext(), MovieDetailActivity.class).putExtra(Constants.EXTRA_MOVIE_ID, id)
+                            .putExtra(Constants.EXTRA_LOCAL, local));
                 else {
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.movie_detail_frame, MovieDetailFragment.newInstance(String.valueOf(id)))
+                            .replace(R.id.movie_detail_frame, MovieDetailFragment.newInstance(String.valueOf(id), local))
                             .commit();
                 }
             }
@@ -118,6 +117,7 @@ public class MoviesFragment extends Fragment {
 
     private void fetchByPopularity() {
         sort = 0;
+        local = false;
         mMoviesGridView.setVisibility(View.GONE);
         mMoviesProgressBar.setVisibility(View.VISIBLE);
         APIClient.getApi().getPopularMovies(new Callback<Movies>() {
@@ -141,6 +141,7 @@ public class MoviesFragment extends Fragment {
 
     private void fetchByRating() {
         sort = 1;
+        local = false;
         mMoviesGridView.setVisibility(View.GONE);
         mMoviesProgressBar.setVisibility(View.VISIBLE);
         APIClient.getApi().getTopRatedMovies(new Callback<Movies>() {
@@ -164,6 +165,7 @@ public class MoviesFragment extends Fragment {
 
     private void fetchFromFavourites() {
         sort = 2;
+        local = true;
         Cursor cursor = getActivity().getContentResolver().query(MoviesContract.BASE_CONTENT_URI, null, null, null, null);
         if (cursor != null && cursor.getCount() > 0) {
             mMoviesGridView.setVisibility(View.GONE);

@@ -66,18 +66,22 @@ public class MovieDetailFragment extends Fragment {
     private MoviesVideoListAdapter mMoviesVideoListAdapter;
     private MoviesReviewListAdapter mMoviesReviewListAdapter;
     private String mID;
-    private String mVideoURL, mMovieTitle;
+    private String mVideoURL, mMovieTitle, mOverview, mRating, mRelease;
     private View mView;
-    private AppCompatActivity mActivity;
     private ContentResolver mContentResolver;
-    private boolean inDB = false;
+    private boolean inDB = false, local;
 
-    public static MovieDetailFragment newInstance(String id) {
-        return new MovieDetailFragment().setID(id);
+    public static MovieDetailFragment newInstance(String id, boolean local) {
+        return new MovieDetailFragment().setID(id).setLocal(local);
     }
 
     public MovieDetailFragment setID(String id) {
         this.mID = id;
+        return this;
+    }
+
+    public MovieDetailFragment setLocal(boolean local) {
+        this.local = local;
         return this;
     }
 
@@ -89,15 +93,15 @@ public class MovieDetailFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mActivity = ((AppCompatActivity) getActivity());
+        AppCompatActivity mactivity = ((AppCompatActivity) getActivity());
         if (!getResources().getBoolean(R.bool.is_tablet)) {
             Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-            mActivity.setSupportActionBar(toolbar);
-            if (mActivity.getSupportActionBar() != null)
-                mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            mactivity.setSupportActionBar(toolbar);
+            if (mactivity.getSupportActionBar() != null)
+                mactivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         mContentResolver = getActivity().getContentResolver();
@@ -119,149 +123,153 @@ public class MovieDetailFragment extends Fragment {
 
         checkIifMovieIsInDatabase();
 
-        APIClient.getApi().getMovieFromId(mID, new Callback<Movie>() {
-            @Override
-            public void success(final Movie movie, Response response) {
-                mToolbarLayout.setTitle(movie.getOriginalTitle());
-                mMovieTitle = movie.getOriginalTitle();
-
-                Picasso.with(getContext())
-                        .load(Constants.URL_BACKDROP_IMAGE + movie.getBackdropPath())
-                        .into(mBackdropImageView);
-
-                mMovieOverviewTextView.setText(movie.getOverview());
-
+        if (local) {
+            mView.findViewById(R.id.video_card_view).setVisibility(View.GONE);
+            mView.findViewById(R.id.review_card_view).setVisibility(View.GONE);
+            Cursor cursor = mactivity.getContentResolver().query(MoviesContract.BASE_CONTENT_URI,
+                    new String[]{MoviesContract.MoviesEntry.COLUMN_ID, MoviesContract.MoviesEntry.COLUMN_TITLE,
+                            MoviesContract.MoviesEntry.COLUMN_OVERVIEW, MoviesContract.MoviesEntry.COLUMN_RATING,
+                            MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE}, MoviesContract.MoviesEntry.COLUMN_ID
+                            + getString(R.string.selection), new String[]{mID}, null);
+            if (cursor != null && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                mMovieTitle = cursor.getString(1);
+                mOverview = cursor.getString(2);
+                mRating = cursor.getString(3);
+                mRelease = cursor.getString(4);
+                mToolbarLayout.setTitle(mMovieTitle);
+                mBackdropImageView.setImageResource(R.mipmap.ic_launcher);
+                mPosterImageView.setImageResource(R.mipmap.ic_launcher);
+                mMovieOverviewTextView.setText(mOverview);
                 String rating = getString(R.string.rating_header)
-                        + String.valueOf(movie.getVoteAverage()) + getString(R.string.rating_footer);
+                        + mRating + getString(R.string.rating_footer);
                 mRatingTextView.setText(rating);
-
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdfFrom = new SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH);
                 try {
-                    cal.setTime(sdfFrom.parse(movie.getReleaseDate()));
+                    cal.setTime(sdfFrom.parse(mRelease));
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
                 SimpleDateFormat sdfTo = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
                 String release = getString(R.string.release_header) + sdfTo.format(cal.getTime());
                 mReleaseTextView.setText(release);
+                cursor.close();
+                initFab();
+            }
+            if (mProgressDialog.isShowing())
+                mProgressDialog.hide();
+        } else {
+            APIClient.getApi().getMovieFromId(mID, new Callback<Movie>() {
+                @Override
+                public void success(final Movie movie, Response response) {
+                    mToolbarLayout.setTitle(movie.getOriginalTitle());
+                    mMovieTitle = movie.getOriginalTitle();
+                    mOverview = movie.getOverview();
+                    mRating = String.valueOf(movie.getVoteAverage());
+                    mRelease = movie.getReleaseDate();
 
-                Picasso.with(getContext())
-                        .load(Constants.URL_POSTER_IMAGE + movie.getPosterPath())
-                        .into(mPosterImageView);
+                    Picasso.with(getContext())
+                            .load(Constants.URL_BACKDROP_IMAGE + movie.getBackdropPath())
+                            .into(mBackdropImageView);
 
-                APIClient.getApi().getMovieVideosFromId(mID, new Callback<MovieVideos>() {
-                    @Override
-                    public void success(final MovieVideos movieVideos, Response response) {
-                        mMoviesVideoListAdapter = new MoviesVideoListAdapter(getContext(), movieVideos.getResults());
-                        mVideosListView.setAdapter(mMoviesVideoListAdapter);
-                        mMoviesVideoListAdapter.notifyDataSetChanged();
-                        if (movieVideos.getResults().size() > 0)
-                            mVideoURL = Constants.URL_YOUTUBE + movieVideos.getResults().get(0).getKey();
-                        else mVideoURL = "none";
-                        mVideosListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                String url = Constants.URL_YOUTUBE + movieVideos.getResults().get(position).getKey();
-                                startActivity((new Intent(Intent.ACTION_VIEW)).setData(Uri.parse(url)));
-                            }
-                        });
+                    mMovieOverviewTextView.setText(mOverview);
 
-                        APIClient.getApi().getMovieReviewsFromId(mID, new Callback<MovieReviews>() {
-                            @Override
-                            public void success(final MovieReviews movieReviews, Response response) {
-                                mMoviesReviewListAdapter = new MoviesReviewListAdapter(getContext(), movieReviews.getResults());
-                                mReviewsListView.setAdapter(mMoviesReviewListAdapter);
-                                mMoviesReviewListAdapter.notifyDataSetChanged();
-                                mReviewsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                        MovieReviewsResults result = movieReviews.getResults().get(position);
-                                        new AlertDialog.Builder(getContext())
-                                                .setTitle(result.getAuthor())
-                                                .setMessage(result.getContent())
-                                                .setPositiveButton(R.string.close, null)
-                                                .create().show();
-                                    }
-                                });
+                    String rating = getString(R.string.rating_header)
+                            + mRating + getString(R.string.rating_footer);
+                    mRatingTextView.setText(rating);
 
-                                mFavouriteFab.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        if (!inDB) {
-                                            ContentValues values = new ContentValues();
-                                            values.put(MoviesContract.MoviesEntry.COLUMN_ID, mID);
-                                            values.put(MoviesContract.MoviesEntry.COLUMN_TITLE, movie.getOriginalTitle());
-                                            values.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, movie.getOverview());
-                                            values.put(MoviesContract.MoviesEntry.COLUMN_RATING, String.valueOf(movie.getVoteAverage()));
-                                            values.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
+                    Calendar cal = Calendar.getInstance();
+                    SimpleDateFormat sdfFrom = new SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH);
+                    try {
+                        cal.setTime(sdfFrom.parse(mRelease));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    SimpleDateFormat sdfTo = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+                    String release = getString(R.string.release_header) + sdfTo.format(cal.getTime());
+                    mReleaseTextView.setText(release);
 
-                                            mContentResolver.insert(MoviesContract.BASE_CONTENT_URI, values);
-                                            Snackbar.make(view, movie.getOriginalTitle() + getString(R.string.favourite_added)
-                                                    , Snackbar.LENGTH_SHORT).show();
-                                            checkIifMovieIsInDatabase();
-                                        } else {
+                    Picasso.with(getContext())
+                            .load(Constants.URL_POSTER_IMAGE + movie.getPosterPath())
+                            .into(mPosterImageView);
+
+                    initFab();
+
+                    APIClient.getApi().getMovieVideosFromId(mID, new Callback<MovieVideos>() {
+                        @Override
+                        public void success(final MovieVideos movieVideos, Response response) {
+                            mMoviesVideoListAdapter = new MoviesVideoListAdapter(getContext(), movieVideos.getResults());
+                            mVideosListView.setAdapter(mMoviesVideoListAdapter);
+                            mMoviesVideoListAdapter.notifyDataSetChanged();
+                            if (movieVideos.getResults().size() > 0)
+                                mVideoURL = Constants.URL_YOUTUBE + movieVideos.getResults().get(0).getKey();
+                            else mVideoURL = "none";
+                            mVideosListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    String url = Constants.URL_YOUTUBE + movieVideos.getResults().get(position).getKey();
+                                    startActivity((new Intent(Intent.ACTION_VIEW)).setData(Uri.parse(url)));
+                                }
+                            });
+
+                            APIClient.getApi().getMovieReviewsFromId(mID, new Callback<MovieReviews>() {
+                                @Override
+                                public void success(final MovieReviews movieReviews, Response response) {
+                                    mMoviesReviewListAdapter = new MoviesReviewListAdapter(getContext(), movieReviews.getResults());
+                                    mReviewsListView.setAdapter(mMoviesReviewListAdapter);
+                                    mMoviesReviewListAdapter.notifyDataSetChanged();
+                                    mReviewsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                        @Override
+                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                            MovieReviewsResults result = movieReviews.getResults().get(position);
                                             new AlertDialog.Builder(getContext())
-                                                    .setMessage(getString(R.string.favourite_remove_question_header)
-                                                            + movie.getOriginalTitle()
-                                                            + getString(R.string.favourite_remove_question_footer))
-                                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            mContentResolver.delete(MoviesContract.BASE_CONTENT_URI,
-                                                                    MoviesContract.MoviesEntry.COLUMN_ID
-                                                                            + getString(R.string.selection),
-                                                                    new String[]{mID});
-                                                            Snackbar.make(mView, movie.getOriginalTitle()
-                                                                            + getString(R.string.favourites_removed),
-                                                                    Snackbar.LENGTH_SHORT).show();
-                                                            checkIifMovieIsInDatabase();
-                                                        }
-                                                    })
-                                                    .setNegativeButton(android.R.string.no, null)
+                                                    .setTitle(result.getAuthor())
+                                                    .setMessage(result.getContent())
+                                                    .setPositiveButton(R.string.close, null)
                                                     .create().show();
                                         }
-                                    }
+                                    });
+                                    if (mProgressDialog.isShowing())
+                                        mProgressDialog.dismiss();
+                                }
 
-                                });
-                                if (mProgressDialog.isShowing())
-                                    mProgressDialog.dismiss();
-                            }
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    if (mProgressDialog.isShowing())
+                                        mProgressDialog.dismiss();
+                                    Snackbar.make(mView, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
+                                    error.printStackTrace();
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                if (mProgressDialog.isShowing())
-                                    mProgressDialog.dismiss();
-                                Snackbar.make(mView, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
-                                error.printStackTrace();
+                                }
+                            });
+                        }
 
-                            }
-                        });
-                    }
+                        @Override
+                        public void failure(RetrofitError error) {
+                            if (mProgressDialog.isShowing())
+                                mProgressDialog.dismiss();
+                            Snackbar.make(mView, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
+                            error.printStackTrace();
+                        }
+                    });
+                }
 
-                    @Override
-                    public void failure(RetrofitError error) {
-                        if (mProgressDialog.isShowing())
-                            mProgressDialog.dismiss();
-                        Snackbar.make(mView, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
-                        error.printStackTrace();
-                    }
-                });
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
-                Snackbar.make(mView, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
-                error.printStackTrace();
-            }
-        });
+                @Override
+                public void failure(RetrofitError error) {
+                    if (mProgressDialog.isShowing())
+                        mProgressDialog.dismiss();
+                    Snackbar.make(mView, R.string.connection_error, Snackbar.LENGTH_SHORT).show();
+                    error.printStackTrace();
+                }
+            });
+        }
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_movie_details, menu);
+        if (!local)
+            inflater.inflate(R.menu.menu_movie_details, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -281,7 +289,7 @@ public class MovieDetailFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public void checkIifMovieIsInDatabase() {
+    private void checkIifMovieIsInDatabase() {
         Cursor c = mContentResolver.query(MoviesContract.BASE_CONTENT_URI, new String[]{MoviesContract.MoviesEntry.COLUMN_ID},
                 MoviesContract.MoviesEntry.COLUMN_ID + getString(R.string.selection), new String[]{mID}, null);
         if (c != null && c.getCount() > 0) {
@@ -292,6 +300,47 @@ public class MovieDetailFragment extends Fragment {
             inDB = false;
             mFavouriteFab.setImageResource(R.drawable.ic_favourite_add);
         }
+    }
+
+    private void initFab() {
+        mFavouriteFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!inDB) {
+                    ContentValues values = new ContentValues();
+                    values.put(MoviesContract.MoviesEntry.COLUMN_ID, mID);
+                    values.put(MoviesContract.MoviesEntry.COLUMN_TITLE, mMovieTitle);
+                    values.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, mOverview);
+                    values.put(MoviesContract.MoviesEntry.COLUMN_RATING, mRating);
+                    values.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, mRelease);
+
+                    mContentResolver.insert(MoviesContract.BASE_CONTENT_URI, values);
+                    Snackbar.make(view, mMovieTitle + getString(R.string.favourite_added)
+                            , Snackbar.LENGTH_SHORT).show();
+                    checkIifMovieIsInDatabase();
+                } else {
+                    new AlertDialog.Builder(getContext())
+                            .setMessage(getString(R.string.favourite_remove_question_header)
+                                    + mMovieTitle
+                                    + getString(R.string.favourite_remove_question_footer))
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mContentResolver.delete(MoviesContract.BASE_CONTENT_URI,
+                                            MoviesContract.MoviesEntry.COLUMN_ID
+                                                    + getString(R.string.selection),
+                                            new String[]{mID});
+                                    Snackbar.make(mView, mMovieTitle
+                                                    + getString(R.string.favourites_removed),
+                                            Snackbar.LENGTH_SHORT).show();
+                                    checkIifMovieIsInDatabase();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, null)
+                            .create().show();
+                }
+            }
+        });
     }
 }
 

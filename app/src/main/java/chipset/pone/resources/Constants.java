@@ -17,6 +17,7 @@ public class Constants {
 
     public static final String PREF_SORT_ORDER = "sort_order";
     public static final String EXTRA_MOVIE_ID = "movie_id";
+    public static final String EXTRA_LOCAL = "local";
 
     public static final String KEY_TABLE_MOVIES = "movies";
     public static final String KEY_ID = "id";
