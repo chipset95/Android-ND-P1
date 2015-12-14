@@ -118,7 +118,7 @@ public class MoviesFragment extends Fragment {
         } else if (item.getItemId() == R.id.action_reload) {
             if (sort == 0)
                 fetchByPopularity();
-            else if (sort == 2)
+            else if (sort == 1)
                 fetchByRating();
         }
         Potato.potate().Preferences().putSharedPreference(getContext(), Constants.PREF_SORT_ORDER, sort);
